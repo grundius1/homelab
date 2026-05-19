@@ -1,0 +1,8 @@
+*.key
+*.pem
+*.crt
+.env
+*password*
+*token*
+*secret*
+*.sql.gz
