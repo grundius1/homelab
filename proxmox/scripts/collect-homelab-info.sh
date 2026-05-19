@@ -363,3 +363,39 @@ echo ""
 echo "Próximo paso:"
 echo "  cd $REPO_DIR && git add . && git commit -m 'docs: update container info ${TIMESTAMP}'"
 echo ""
+
+# =============================================================
+#  SANITIZADO DE SEGURIDAD — elimina datos sensibles
+#  Se ejecuta siempre al final, antes del commit
+# =============================================================
+sanitize() {
+  echo "── Sanitizando datos sensibles..."
+
+  for f in $(find "$REPO_DIR" -name "*.md" -o -name "*.conf" -o -name "*.sh" | grep -v ".git"); do
+
+    # MACs reales → XX:XX:XX:XX:XX:XX
+    sed -i 's/hwaddr=[A-Fa-f0-9:]\{17\}/hwaddr=XX:XX:XX:XX:XX:XX/g' "$f"
+    sed -i 's/\([0-9a-fA-F]\{2\}:\)\{5\}[0-9a-fA-F]\{2\}/XX:XX:XX:XX:XX:XX/g' "$f"
+
+    # IPs internas → 192.168.1.XX
+    sed -i 's/192\.168\.[0-9]\{1,3\}\.[0-9]\{1,3\}/192.168.1.XX/g' "$f"
+
+    # IPv6 con MAC embebida → fe80::XX/64
+    sed -i 's/fe80::[a-fA-F0-9:]\{1,\}\/64/fe80::XX\/64/g' "$f"
+
+    # Token de VSCode Server
+    sed -i 's/--connection-token=[^ ]*/--connection-token=REDACTED/g' "$f"
+
+    # Líneas de procesos internos de vscode (ps aux output)
+    sed -i '/\.vscode\/cli\/servers/d' "$f"
+
+    # Rutas absolutas internas sensibles
+    sed -i 's|/root/\.n8n|~/.n8n|g' "$f"
+    sed -i 's|/root/\.vscode|~/.vscode|g' "$f"
+
+  done
+
+  ok "Sanitizado completado — repo listo para commit"
+}
+
+sanitize
