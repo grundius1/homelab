@@ -399,3 +399,21 @@ sanitize() {
 }
 
 sanitize
+
+# =============================================================
+#  SANITIZADO — elimina datos sensibles antes del commit
+# =============================================================
+sanitize() {
+  echo "── Sanitizando datos sensibles..."
+  for f in $(find "$REPO_DIR" -name "*.md" -o -name "*.conf" | grep -v ".git"); do
+    sed -i 's/hwaddr=[A-Fa-f0-9:]\{17\}/hwaddr=XX:XX:XX:XX:XX:XX/g' "$f"
+    sed -i 's/\([0-9a-fA-F]\{2\}:\)\{5\}[0-9a-fA-F]\{2\}/XX:XX:XX:XX:XX:XX/g' "$f"
+    sed -i 's/192\.168\.[0-9]\{1,3\}\.[0-9]\{1,3\}/192.168.1.XX/g' "$f"
+    sed -i 's/fe80::[a-fA-F0-9:]*\/64/fe80::XX\/64/g' "$f"
+    sed -i 's/--connection-token=[^ ]*/--connection-token=REDACTED/g' "$f"
+    sed -i '/\.vscode\/cli\/servers/d' "$f"
+    sed -i 's|/root/\.n8n|~\/.n8n|g' "$f"
+  done
+  ok "Sanitizado completado ✅"
+}
+sanitize
