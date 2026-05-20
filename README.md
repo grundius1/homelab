@@ -38,7 +38,9 @@ contenedores LXC, automatización, IA local y base de datos.
 `Proxmox VE 9.1.9` `LXC` `n8n` `Ollama` `PostgreSQL`
 `zrok` `NFS` `ZFS` `Debian 12` `Ubuntu 24.04` `Tailscale`
 
-## 📂 Estructura
+## 📂 Contenedores
+
+### ![](https://img.shields.io/badge/VSCode-1E88E5?style=flat&logo=visual-studio-code&logoColor=white) CT100 | VSCode Server
 
 \`\`\`
 ├── proxmox/

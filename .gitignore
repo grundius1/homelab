@@ -6,3 +6,7 @@
 *token*
 *secret*
 *.sql.gz
+containers/
+docs/
+monitoring/
+proxmox/
