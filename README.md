@@ -15,8 +15,8 @@ Infraestructura personal con Proxmox VE 9.1.9, 2 nodos físicos y una arquitectu
 
 ## 🧩 Distribución por nodo
 
-- **ordenador1**: `CT100` VSCode Server, `CT101` n8n, `CT103` zrok, `CT104` PostgreSQL.
-- **ordenador2**: `CT200` Ollama, `CT105` Picoclaw.
+- **ordenador1**: `CT100` VSCode Server, `CT101` n8n, `CT103` zrok, `CT104` PostgreSQL. Este nodo concentra la gestión del clúster y servicios de backend ligeros.
+- **ordenador2**: `CT200` Ollama, `CT105` Picoclaw. Este nodo soporta IA local y agentes con mayor demanda de memoria/GPU.
 
 ## 💾 Almacenamiento
 
@@ -88,3 +88,4 @@ Infraestructura personal con Proxmox VE 9.1.9, 2 nodos físicos y una arquitectu
 - Incluir un diagrama de arquitectura o un mapa de red sencillo.
 - Añadir notas sobre backup / restauración de `NFS_ord2` y `ZFS HHDD`.
 - Registrar el método de autenticación usado en Proxmox y Tailscale.
+- Evitar información sensible en el repositorio público, como credenciales, rutas privadas o datos de producción.
