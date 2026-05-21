@@ -1,59 +1,90 @@
 # 🏠 Homelab — Proxmox Cluster
 
-Infraestructura personal con Proxmox VE 9.1.9, 2 nodos físicos,
-contenedores LXC, automatización, IA local y base de datos.
+Infraestructura personal con Proxmox VE 9.1.9, 2 nodos físicos y una arquitectura de contenedores LXC para desarrollo remoto, automatización, IA local y datos.
 
-## 🖥️ Hardware
+## 🚧 Acceso y alcance
+
+- Este repositorio documenta la arquitectura, los contenedores y la automatización usada para mantener el clúster actualizado.
+
+## 🖥️ Nodo del clúster
 
 | Nodo | CPU | RAM | Rol |
 |------|-----|-----|-----|
-| ordenador1 | Intel i5-5300U (4T) | 5.7 GB | Servicios principales |
-| ordenador2 | Intel i7-6700HQ (8T) | 15 GB | IA + almacenamiento ZFS |
+| ordenador1 | Intel i5-5300U (4 hilos) | 5.7 GB | Servicios principales y gestión Proxmox |
+| ordenador2 | Intel i7-6700HQ (8 hilos) | 15 GB | IA local con GPU y almacenamiento ZFS |
 
-## 🚀 Servicios
+## 🧩 Distribución por nodo
 
-| Contenedor | Servicio | Función |
-|------------|----------|---------|
-| CT100 | VSCode Server | IDE en navegador |
-| CT101 | n8n | Automatización de workflows |
-| CT103 | zrok | Tunneling seguro |
-| CT104 | PostgreSQL | Base de datos (disco en NFS) |
-| CT200 | Ollama | Modelos de IA local (LLM) |
+- **ordenador1**: `CT100` VSCode Server, `CT101` n8n, `CT103` zrok, `CT104` PostgreSQL.
+- **ordenador2**: `CT200` Ollama, `CT105` Picoclaw.
 
 ## 💾 Almacenamiento
 
-- **NFS_ord2** (~894 GB) compartido entre ambos nodos
-- **ZFS HHDD** (~900 GB) en ordenador2 para datos pesados
-- **local-lvm** en cada nodo para OS de contenedores
+- **NFS_ord2** (~894 GB) compartido entre ambos nodos para datos persistentes.
+- **ZFS HHDD** (~900 GB) en `ordenador2` para datos de alto volumen y snapshots.
+- **local-lvm** en cada nodo para sistemas operativos y discos de contenedores.
 
-## 💡 Decisiones técnicas
+## 🔧 Principales decisiones técnicas
 
-- **LXC en vez de VMs** — menor overhead con hardware doméstico
-- **PostgreSQL en NFS** — permite migración entre nodos sin mover datos
-- **Ollama en ordenador2** — mayor RAM para cargar modelos grandes
-- **zrok** — acceso externo seguro sin abrir puertos en el router
+- **LXC** para contenedores ligeros con menor overhead en hardware doméstico.
+- **Proxmox** para orquestación de nodos físicos, contenedores y redes.
+- **PostgreSQL en NFS** para persistencia compartida y migración de datos.
+- **Ollama en nodo 2** para ejecución local de modelos IA con GPU.
+- **zrok** para exponer servicios internos sin abrir puertos de router.
+- **Tailscale** para acceso remoto seguro a la interfaz de administración.
 
-## 🛠️ Stack
+## 🚀 Servicios y contenedores
 
-`Proxmox VE 9.1.9` `LXC` `n8n` `Ollama` `PostgreSQL`
-`zrok` `NFS` `ZFS` `Debian 12` `Ubuntu 24.04` `Tailscale`
+| Contenedor | Servicio | Propósito |
+|------------|----------|-----------|
+| CT100 | VSCode Server | Entorno de desarrollo remoto en navegador |
+| CT101 | n8n | Automatización de workflows y orquestación de tareas |
+| CT103 | zrok | túnel seguro para exponer servicios internos |
+| CT104 | PostgreSQL | Base de datos relacional con volumen NFS compartido |
+| CT200 | Ollama | Plataforma local de IA / LLM con GPU passthrough |
+| CT105 | Picoclaw | Runtime de agentes IA para experimentación |
 
-## 📂 Contenedores
+## 📌 Detalles de contenedores
 
-### ![](https://img.shields.io/badge/VSCode-1E88E5?style=flat&logo=visual-studio-code&logoColor=white) CT100 | VSCode Server
+### CT100 — VSCode Server
+- Ubuntu 24.04
+- 2 CPU, 4 GB RAM, 100 GB en `local-lvm`
+- Entorno de desarrollo remoto para trabajar dentro del homelab.
 
-\`\`\`
-├── proxmox/
-│   ├── configs/       # Configuración de cada contenedor
-│   └── scripts/       # Scripts para recrear el entorno
-├── containers/        # Documentación de cada servicio
-├── docs/              # Arquitectura, nodos y red
-└── automation/        # Workflows de n8n
-\`\`\`
+### CT101 — n8n
+- Versión detectada: 2.19.5
+- Plataforma de automatización y workflows locales.
+- Integrable con servicios IA y la base de datos local.
 
-## 🔄 Actualizar documentación
+### CT103 — zrok
+- Túnel seguro para servicios internos.
+- Permite tráfico entrante sin configuración de NAT en el router.
 
-\`\`\`bash
-bash proxmox/scripts/collect-homelab-info.sh
-git add . && git commit -m "docs: update" && git push
-\`\`\`
+### CT104 — PostgreSQL
+- PostgreSQL 18.3
+- Datos montados en `NFS_ord2` para persistencia compartida.
+- Útil para aplicaciones internas y proyectos de IA.
+
+### CT200 — Ollama
+- Servidor de IA local / LLM
+- 6 CPU y GPU passthrough
+- Ejecutado en `ordenador2` con mayor RAM disponible.
+
+### CT105 — Picoclaw
+- Runtime de agentes IA ligero
+- Contenedor orientado a experimentación de automatización y flujos inteligentes.
+
+## 📚 Documentación
+
+- `docs/cluster-summary.md` — resumen de estado del clúster.
+- `docs/node-ordenador1.md` — detalles de hardware y contenedores de `ordenador1`.
+- `docs/node-ordenador2.md` — detalles de hardware y contenedores de `ordenador2`.
+- `containers/*/info.md` — metadatos de cada contenedor LXC.
+
+## 📝 Recomendaciones futuras
+
+- Añadir URLs directas a servicios como `n8n`, `Ollama` y `VSCode Server` cuando estén disponibles.
+- Documentar casos de uso concretos de la automatización y los modelos IA.
+- Incluir un diagrama de arquitectura o un mapa de red sencillo.
+- Añadir notas sobre backup / restauración de `NFS_ord2` y `ZFS HHDD`.
+- Registrar el método de autenticación usado en Proxmox y Tailscale.
