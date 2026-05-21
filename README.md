@@ -24,7 +24,7 @@ Infraestructura personal con Proxmox VE 9.1.9, 2 nodos físicos y una arquitectu
 flowchart LR
   subgraph ordenador1["ordenador1"]
     direction TB
-    CT100["CT100\nVSCode Server\nPostgreSQL"]
+    CT100["CT100\nVSCode Server"]
     CT101["CT101\nn8n"]
     CT103["CT103\nzrok"]
     CT104["CT104\nPostgreSQL"]
@@ -47,6 +47,7 @@ flowchart LR
   CT100 --> CT101
   CT103 --> CT101
   CT101 --> CT104
+  CT100 --> CT104
 ```
 
 ## 💾 Almacenamiento
